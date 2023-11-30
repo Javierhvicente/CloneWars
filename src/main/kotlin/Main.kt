@@ -1,8 +1,10 @@
-import models.Configuracion
-import models.Droide
+import models.Configuration
+import models.StrikeShip
 
 fun main(args: Array<String>) {
     println("THE CLONE WARS")
-    val config = Configuracion(args)
-    println(Droide)
+    val config = Configuration.fromArgs(args)
+    val strike = StrikeShip(config.mapSize, config.NumDroids, config.time)
+
+
 }
