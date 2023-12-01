@@ -15,8 +15,8 @@ class StrikeShip(
         get() = NumEnemies - enemiesDead
     private val enemiesDead: Int
         get() = getTotalEnemiesDead()
-    private val numberOfShots: Int = 0
-    private val numberOfHits: Int = 0
+    private var numberOfShots: Int = 0
+    private var numberOfHits: Int = 0
     private val performance: Double
         get() = getTotalPerformance()
 
@@ -33,8 +33,51 @@ class StrikeShip(
             }
             Thread.sleep(100)
             time += 100
-
+            val shot = takeAShot()
+            numberOfShots++
+            val row = (0 until mapSize).random()
+            val col = (0 until mapSize).random()
+            if(map[row][col] != null){
+                println("You have hit the enemy in ${row+1} ${col+1}")
+                numberOfHits++
+                val enemy = map[row][col]!!
+                var efectiveDamage: Int = 0
+                when(enemy.type){
+                    Droid.Type.SW447 -> {
+                        println("Enemy is using the shield with value ${enemy.shield}")
+                        efectiveDamage = if (enemy.shield > shot) 0 else shot - enemy.shield
+                    }
+                    Droid.Type.SW348 -> {
+                        println("Enemy is defending")
+                        efectiveDamage = enemy.defend(shot)
+                    }
+                    Droid.Type.SW421 -> {
+                        if(!enemy.move()){
+                            println("The enemy doesn´t move")
+                            efectiveDamage = shot
+                        }
+                    }
+                }
+                enemy.maxEnergy -= efectiveDamage
+                println("Efective damage: $efectiveDamage")
+                println("Enemy after atack: $enemy")
+            }else{
+                println("You missed")
+            }
+            printMap()
         }while (enemiesLeft > 0 && time < maxTime*1000)
+    }
+
+
+
+    private fun takeAShot():Int{
+        if((1..100).random() <= 15){
+            println("Crirtical shot")
+            return 50
+        }else{
+            return 25
+        }
+
     }
 
     private fun placeEnemies() {
@@ -74,7 +117,9 @@ class StrikeShip(
                 }else{
                     print(droid.color)
                 }
+
             }
+            println()
         }
     }
 
@@ -95,5 +140,32 @@ class StrikeShip(
             }
         }
         return count
+    }
+
+    fun report() {
+        println("Number of initial enemies: $NumEnemies")
+        println("Number of final enemies: $enemiesLeft")
+        println("Number of shots taken: $numberOfShots")
+        println("Number of dead enemies: $enemiesDead")
+        println("Percentage of success: $performance")
+        println("Enemies: ")
+        orderEnemies()
+        for (enemy in enemies){
+            println(enemy)
+        }
+        println()
+    }
+
+    private fun orderEnemies() {
+        for(i in 0 until mapSize){
+            for(j in 0 until mapSize - i -1){
+                if(enemies[j].maxEnergy < enemies[i].maxEnergy){
+                    val temp = enemies[j]
+                    enemies[j] = enemies[j + 1]
+                    enemies[j + 1] = temp
+
+                }
+            }
+        }
     }
 }

@@ -6,5 +6,6 @@ fun main(args: Array<String>) {
     val config = Configuration.fromArgs(args)
     val strike = StrikeShip(config.mapSize, config.NumDroids, config.time)
     strike.simulation()
-
+    println()
+    strike.report()
 }

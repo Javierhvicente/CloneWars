@@ -1,7 +1,10 @@
 package models
+
+import kotlin.math.min
+
 class Droid private constructor(
     val type: Type,
-    val maxEnergy: Int,
+    var maxEnergy: Int,
     val defense: Int,
     val speed: Int,
     val shield: Int) {
@@ -30,6 +33,20 @@ class Droid private constructor(
     override fun toString(): String {
         return "Droid(maxEnergy=$maxEnergy, type=$type, defense=$defense, speed=$speed, shield=$shield)"
     }
+
+    fun defend(damage: Int): Int {
+        check(this.type == Type.SW348){"This type of droid can´t defend"}
+        println("Enemy defends with value $defense")
+        return min(defense, damage)
+    }
+
+    fun move(): Boolean {
+        check(this.type == Type.SW421){"This dorid can´t dodge"}
+        println("Enemy dodge the shot with $speed")
+        return (1..100).random() <= speed
+
+    }
+
     val color: String
     get(){
         return when(type){
