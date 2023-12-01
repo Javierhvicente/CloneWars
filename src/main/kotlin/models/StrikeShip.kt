@@ -1,5 +1,7 @@
 package models
 
+import kotlin.concurrent.thread
+import kotlin.math.min
 import kotlin.math.round
 
 class StrikeShip(
@@ -20,16 +22,47 @@ class StrikeShip(
 
     fun simulation(){
         var time = 0
-        palceEnemies()
+        placeEnemies()
+        printMap()
+        do{
+            println("time: $time")
+            println("Enemies left: $enemiesLeft")
+            if(time % 300 == 0){
+                println("Enemies are moving")
+                placeEnemies()
+            }
+            Thread.sleep(100)
+            time += 100
+
+        }while (enemiesLeft > 0 && time < maxTime*1000)
     }
 
-    private fun palceEnemies() {
+    private fun placeEnemies() {
         for(row in (0 until mapSize)){
             for(col in (0 until mapSize)){
                 if(map[row][col] != null){
                     map[row][col] = null
                 }
             }
+        }
+        val maxStoredEnemies = min(mapSize * mapSize ,enemiesLeft)
+        var storedEnemies = 0
+        var enemiesIndex = 0
+        while (maxStoredEnemies > storedEnemies){
+            while (enemiesIndex < enemies.size && !enemies[enemiesIndex].isAlive()){
+                enemiesIndex++
+            }
+            var isStored = false
+            do{
+                val row = (0 until mapSize).random()
+                val col = (0 until mapSize).random()
+                if(map[row][col]==null){
+                    map[row][col] = enemies[enemiesIndex]
+                    storedEnemies++
+                    isStored = true
+                    enemiesIndex++
+                }
+            }while (!isStored)
         }
     }
 
